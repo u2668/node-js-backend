@@ -2,8 +2,9 @@
 
 import {Calculator} from "./Scripts/Calculator";
 import {Server} from "./Scripts/Server";
+import {Scheduler} from "./Scripts/Scheduler"
 
-import Mongoose = require('mongoose');
+import * as Mongoose from 'mongoose';
 
 /*
 var parse = Url.parse("http://www.example.com/profile?name=barry");
@@ -20,6 +21,7 @@ new Server("127.0.0.1", 1332)
 
 console.log(Mongoose.version);
 
+Scheduler.startAsync();
 /*
 var db = Mongoose.createConnection('mongodb://localhost/test');
 

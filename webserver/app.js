@@ -1,7 +1,8 @@
 /// <reference path="./node_modules/retyped-mongoose-tsd-ambient/mongoose.d.ts" />
 "use strict";
-var Server_1 = require("./Scripts/Server");
-var Mongoose = require('mongoose');
+const Server_1 = require("./Scripts/Server");
+const Scheduler_1 = require("./Scripts/Scheduler");
+const Mongoose = require('mongoose');
 /*
 var parse = Url.parse("http://www.example.com/profile?name=barry");
 console.log(parse.protocol);
@@ -13,6 +14,7 @@ new Server_1.Server("127.0.0.1", 1331)
 new Server_1.Server("127.0.0.1", 1332)
     .start();
 console.log(Mongoose.version);
+Scheduler_1.Scheduler.startAsync();
 /*
 var db = Mongoose.createConnection('mongodb://localhost/test');
 

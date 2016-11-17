@@ -3,8 +3,7 @@
 /// <reference path="../node_modules/retyped-serve-static-tsd-ambient/serve-static.d.ts" />
 /// <reference path="../node_modules/retyped-mime-tsd-ambient/mime.d.ts" />
 
-//import Http = require("http");
-import Express = require("express");
+import * as Express from "express";
 
 export class Server {
     private port: number;
@@ -15,7 +14,7 @@ export class Server {
         this.port = port;
     }
 
-    public start() {
+    public async start() {
         /*
         Http
             .createServer((req, res) => {
@@ -25,8 +24,16 @@ export class Server {
             .listen(this.port, this.host);
         console.log(`Server running at http://${this.host}:${this.port}/`);
         */
-        var app = Express(); 
+        var app = Express();
+
+        //app.use(app.route);
+
         app.use('/static', Express.static('files'));
+
+        app.get('/api', (req, res) => {
+            res.send({ error: 'Validation error' });
+        });
+
         app.listen(this.port, () => {
             console.log(`Server running at http://${this.host}:${this.port}/`);
         });
