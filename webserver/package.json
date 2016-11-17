@@ -1,0 +1,26 @@
+{
+  "name": "nodejs-console-webserver",
+  "version": "0.0.0",
+  "description": "NodejsConsoleWebServer",
+  "main": "app.js",
+  "author": {
+    "name": "Anseltis",
+    "email": "anseltis@gmail.com"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "mime": "^1.3.4",
+    "mongoose": "^4.6.8",
+    "retyped-express-tsd-ambient": "0.0.0-0",
+    "retyped-mime-tsd-ambient": "0.0.0-0",
+    "retyped-mongoose-tsd-ambient": "^3.8.5-0",
+    "retyped-node-tsd-ambient": "^1.5.3-0",
+    "retyped-serve-static-tsd-ambient": "0.0.0-0",
+    "serve-static": "^1.11.1",
+    "tsd": "^0.6.5"
+  },
+  "devDependencies": {
+    "mocha": "^3.1.2",
+    "retyped-mocha-tsd-ambient": "^2.2.5-0"
+  }
+}
