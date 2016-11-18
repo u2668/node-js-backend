@@ -21,7 +21,7 @@
     <OutputPath>.</OutputPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
-    <ProjectView>ShowAllFiles</ProjectView>
+    <ProjectView>ProjectFiles</ProjectView>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
     <EnableTypeScript>true</EnableTypeScript>
@@ -38,10 +38,17 @@
     <TypeScriptCompile Include="app.ts" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <TypeScriptCompile Include="Data\Input.ts" />
+    <TypeScriptCompile Include="Data\Output.ts" />
+    <TypeScriptCompile Include="Domain\Car.ts" />
+    <TypeScriptCompile Include="Domain\Bench.ts" />
+    <TypeScriptCompile Include="Domain\Message.ts" />
     <TypeScriptCompile Include="Scripts\Calculator.ts" />
+    <TypeScriptCompile Include="Scripts\Thinker.ts" />
+    <TypeScriptCompile Include="Scripts\Database.ts" />
+    <TypeScriptCompile Include="Scripts\WebServer.ts" />
     <TypeScriptCompile Include="Utility\Web.ts" />
     <TypeScriptCompile Include="Scripts\Scheduler.ts" />
-    <TypeScriptCompile Include="Scripts\Server.ts" />
     <TypeScriptCompile Include="Test\UnitTest1.ts">
       <SubType>Code</SubType>
       <TestFramework>Mocha</TestFramework>
@@ -50,6 +57,8 @@
   <ItemGroup>
     <Folder Include="bin\" />
     <Folder Include="files\" />
+    <Folder Include="Domain\" />
+    <Folder Include="Data\" />
     <Folder Include="Utility\" />
     <Folder Include="Test\" />
     <Folder Include="Scripts\" />

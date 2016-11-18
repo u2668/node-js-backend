@@ -1,37 +1,40 @@
 ﻿/// <reference path="./node_modules/retyped-mongoose-tsd-ambient/mongoose.d.ts" />
+/// <reference path="./node_modules/retyped-bluebird-tsd-ambient/bluebird.d.ts" />
 
 import {Calculator} from "./Scripts/Calculator";
-import {Server} from "./Scripts/Server";
-import {Scheduler} from "./Scripts/Scheduler"
+import {WebServer} from "./Scripts/WebServer";
+import {Scheduler} from "./Scripts/Scheduler";
+import {Thinker} from "./Scripts/Thinker"
+import {IDatabase, Database, FakeDatabase} from "./Scripts/Database"
+import {Message} from "./Domain/Message"
+import {Car} from "./Domain/Car"
 
+import * as Bluebird from "bluebird";
 import * as Mongoose from 'mongoose';
 
-/*
-var parse = Url.parse("http://www.example.com/profile?name=barry");
-console.log(parse.protocol);
-console.log(parse.host);
-console.log(parse.query);
-*/
-
-new Server("127.0.0.1", 1331)
-    .start();
-
-new Server("127.0.0.1", 1332)
-    .start();
-
 console.log(Mongoose.version);
-
-Scheduler.startAsync();
-/*
-var db = Mongoose.createConnection('mongodb://localhost/test');
-
-var userSchema = new Mongoose.Schema({
-    name: { type: String, default: "hahaha" },
-    age: { type: Number, min: 18, index: true },
-    bio: { type: String, match: /[a-z]/ },
-    date: { type: Date },
-    buff: Buffer
+//Mongoose.connect('mongodb://localhost:27017/test');
+Mongoose.connect('mongodb://46.101.204.43:27017/test');
+Mongoose.Promise = <any>Bluebird;
+var db = Mongoose.connection;
+Mongoose.connection.on('error', console.error.bind(console, 'connection error:'));
+Mongoose.connection.once('open', () => {
+    console.log("we connect");
 });
 
-var user = db.model("User", userSchema);
+var database: IDatabase = new Database(db);
+
+var thinker = new Thinker("http://149127da.ngrok.io/notifications");
+new WebServer("127.0.0.1", 1331, thinker, database).start();
+
+setInterval(() => {
+        console.log("hello");
+    },
+    20000);
+
+
+
+/*
+database.getAllAsync("benches")
+    .then(bench => { console.log(`saved: ${JSON.stringify(bench)}`);});
 */
