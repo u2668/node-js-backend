@@ -1,5 +1,7 @@
 #!/bin/sh
-imageName="u2668/node-js-backend"
-docker build -t ${imageName} .
-docker push ${imageName}
 
+#build image
+docker build -t "u2668/node-js-backend" .
+
+#publish image
+docker push "u2668/node-js-backend"

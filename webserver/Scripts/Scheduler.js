@@ -8,11 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const Web = require("../Utility/Web");
+const Web_1 = require("../Utility/Web");
 class Scheduler {
     static startAsync() {
         return __awaiter(this, void 0, void 0, function* () {
-            var res = yield Web.requestAsync({
+            var res = yield Web_1.Web.requestAsync({
                 method: 'GET',
                 uri: 'https://yandex.ru/'
             });

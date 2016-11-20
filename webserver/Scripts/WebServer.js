@@ -2,6 +2,8 @@
 /// <reference path="../node_modules/retyped-express-tsd-ambient/express.d.ts" />
 /// <reference path="../node_modules/retyped-serve-static-tsd-ambient/serve-static.d.ts" />
 /// <reference path="../node_modules/retyped-mime-tsd-ambient/mime.d.ts" />
+/// <reference path="../node_modules/retyped-request-tsd-ambient/request.d.ts" />
+/// <reference path="../node_modules/retyped-lodash-tsd-ambient/lodash.d.ts" />
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,7 +14,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const Express = require("express");
-const Input_1 = require("../Data/Input");
+const _ = require("lodash");
+const Web_1 = require("../Utility/Web");
 class WebServer {
     constructor(host, port, thinker, database) {
         this.host = host;
@@ -23,98 +26,48 @@ class WebServer {
     start() {
         return __awaiter(this, void 0, void 0, function* () {
             const app = Express();
-            app.use((req, res, next) => {
+            app
+                .use((req, res, next) => {
                 res.setHeader('Access-Control-Allow-Origin', '*');
                 res.setHeader('Access-Control-Allow-Methods', 'GET');
                 next();
-            });
-            app.use('/static', Express.static('files'));
-            app.get('/cars', (req, res) => __awaiter(this, void 0, void 0, function* () {
-                var cars = yield this.database.getAllAsync("cars");
-                var result = cars.map(_ => {
-                    var car = {
-                        "time": _.time,
-                        "place": _.place,
-                        "passangers": _.passangers
-                    };
-                    return car;
-                });
-                res.send(result);
-            }));
-            app.get('/bench', (req, res) => __awaiter(this, void 0, void 0, function* () {
-                var benches = yield this.database.getAllAsync("benches");
-                res.send(benches.map(_ => _.name));
-            }));
-            app.post('/addbench', (req, res) => {
-                var queryResponse = "";
-                req.on('data', chunk => { queryResponse += chunk; });
-                req.on('end', () => {
-                    var result = JSON.parse(queryResponse);
-                    console.log(result);
-                    this.database.addBenchAsync({
-                        "name": "Aleksandr Aleksandrov"
-                    });
-                });
-                res.send({ "result": "ok" });
-            });
-            app.post('/send', (req, res) => {
-                var queryResponse = "";
-                req.on('data', chunk => { queryResponse += chunk; });
-                req.on('end', () => __awaiter(this, void 0, void 0, function* () {
-                    var result = JSON.parse(queryResponse);
-                    console.log(result);
-                    yield this.database.addMessageAsync({
-                        driver: result.driver,
-                        time: result.time,
-                        name: result.name,
-                        place: result.place
-                    });
-                    var messages = yield this.database.getAllAsync("messages");
-                    var inputs = messages.map(_ => {
-                        var input = new Input_1.Input();
-                        input.name = _.name;
-                        input.driver = _.driver;
-                        input.time = _.time;
-                        input.place = _.place;
-                        return input;
-                    });
-                    console.log(JSON.stringify(messages));
-                    var old = this.database.getAllAsync("cars");
-                    var output = yield this.thinker.analyzeAndSend(inputs, old);
-                    yield this.database.dropAsync("benches");
-                    yield this.database.dropAsync("cars");
-                    output.bench.forEach(_ => {
-                        this.database.addBenchAsync({
-                            "name": _
-                        }).then();
-                    });
-                    output.cars.forEach(_ => {
-                        this.database.addCarAsync({
-                            time: _.time,
-                            place: _.place,
-                            passangers: _.passangers
-                        }).then();
-                    });
-                }));
-                res.send({ "result": "ok" });
-            });
-            app.post('/check', (req, res) => {
-                var queryResponse = "";
-                req.on('data', chunk => { queryResponse += chunk; });
-                req.on('end', () => {
-                    console.log(`check: ${queryResponse}`);
-                });
-                res.send({ "result": "ok" });
-            });
-            app.post('/clear', (req, res) => __awaiter(this, void 0, void 0, function* () {
-                this.database.dropAsync("messages");
-                this.database.dropAsync("benches");
-                this.database.dropAsync("cars");
-                res.send({ "result": "clear" });
-            }));
-            app.listen(this.port, () => {
+            })
+                .listen(this.port, () => {
                 console.log(`Server running at http://${this.host}:${this.port}/`);
             });
+            app
+                .get('/cars', (request, response) => __awaiter(this, void 0, void 0, function* () {
+                var match = yield this.database.getMatchResultAsync();
+                response.send(match.cars);
+            }))
+                .get('/bench', (request, response) => __awaiter(this, void 0, void 0, function* () {
+                var match = yield this.database.getMatchResultAsync();
+                var benches = _(match.benches)
+                    .map(bench => bench.name)
+                    .toArray();
+                response.send(benches);
+            }))
+                .post('/send', (request, response) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    var body = yield Web_1.Web.assembleBodyAsync(request);
+                    console.log(`send body: ${JSON.stringify(body)}`);
+                    yield this.database.addMessageAsync({
+                        driver: body.driver,
+                        time: body.time,
+                        name: body.name,
+                        place: body.place
+                    });
+                    yield this.thinker.processAsync();
+                }
+                catch (exception) {
+                    console.log(exception);
+                }
+                response.send({ "result": "ok" });
+            }))
+                .post('/clear', (request, response) => __awaiter(this, void 0, void 0, function* () {
+                yield this.database.clearAsync();
+                response.send({ "result": "clear" });
+            }));
         });
     }
 }

@@ -5,6 +5,11 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>WebServer</Name>
     <RootNamespace>NodejsConsoleApp1</RootNamespace>
+    <NodeExeArguments>
+    </NodeExeArguments>
+    <ScriptArguments>
+    </ScriptArguments>
+    <Environment>NODE_ENV=development</Environment>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -25,7 +30,7 @@
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
     <EnableTypeScript>true</EnableTypeScript>
-    <StartWebBrowser>false</StartWebBrowser>
+    <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,31 +39,41 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="files\1.txt" />
     <TypeScriptCompile Include="app.ts" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <TypeScriptCompile Include="Communicate\ICommunicator.ts" />
+    <TypeScriptCompile Include="Communicate\FakeCommunicator.ts" />
+    <TypeScriptCompile Include="Communicate\WebCommunicator.ts" />
+    <TypeScriptCompile Include="Database\MongoUtility.ts" />
+    <TypeScriptCompile Include="Database\MongoDatabase.ts" />
+    <TypeScriptCompile Include="Database\ObjectDatabase.ts" />
     <TypeScriptCompile Include="Data\Input.ts" />
     <TypeScriptCompile Include="Data\Output.ts" />
+    <TypeScriptCompile Include="Domain\MatchResult.ts" />
+    <TypeScriptCompile Include="Entity\BenchEntity.ts" />
+    <TypeScriptCompile Include="Entity\CarEntity.ts" />
+    <TypeScriptCompile Include="Entity\MessageEntity.ts" />
     <TypeScriptCompile Include="Domain\Car.ts" />
     <TypeScriptCompile Include="Domain\Bench.ts" />
     <TypeScriptCompile Include="Domain\Message.ts" />
     <TypeScriptCompile Include="Scripts\Calculator.ts" />
     <TypeScriptCompile Include="Scripts\Thinker.ts" />
-    <TypeScriptCompile Include="Scripts\Database.ts" />
+    <TypeScriptCompile Include="Database\IDatabase.ts" />
     <TypeScriptCompile Include="Scripts\WebServer.ts" />
     <TypeScriptCompile Include="Utility\Web.ts" />
     <TypeScriptCompile Include="Scripts\Scheduler.ts" />
-    <TypeScriptCompile Include="Test\UnitTest1.ts">
+    <TypeScriptCompile Include="Test\ThinkerTest.ts">
       <SubType>Code</SubType>
       <TestFramework>Mocha</TestFramework>
     </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="bin\" />
-    <Folder Include="files\" />
+    <Folder Include="Entity\" />
     <Folder Include="Domain\" />
     <Folder Include="Data\" />
+    <Folder Include="Database\" />
+    <Folder Include="Communicate\" />
     <Folder Include="Utility\" />
     <Folder Include="Test\" />
     <Folder Include="Scripts\" />

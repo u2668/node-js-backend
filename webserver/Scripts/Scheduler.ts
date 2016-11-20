@@ -1,6 +1,6 @@
 ﻿/// <reference path="../node_modules/retyped-node-tsd-ambient/node.d.ts" />
 
-import * as Web from "../Utility/Web"
+import {Web} from "../Utility/Web"
 
 export class Scheduler {
 

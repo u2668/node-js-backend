@@ -1,96 +1,127 @@
 ﻿/// <reference path="../node_modules/retyped-lodash-tsd-ambient/lodash.d.ts" />
 
-import * as Web from "../Utility/Web"
-import {Input} from "../Data/Input"
-import {Output, CarOutput, FlagOutput} from "../Data/Output"
 import * as _ from "lodash"
 
+import {Input} from "../Data/Input"
+import {Output, CarOutput, FlagOutput} from "../Data/Output"
+
+import {IDatabase} from "../Database/IDatabase";
+import {ICommunicator} from "../Communicate/ICommunicator"
+
+import {IMessage} from "../Domain/Message";
+import {IBench} from "../Domain/Bench";
+import {ICar} from "../Domain/Car";
+import {IMatchResult} from "../Domain/MatchResult";
+
+export interface Func<T, TResult> {
+    (item: T): TResult;
+}
 export class Thinker {
-    constructor(uri: string) {
-        this.uri = uri;
+
+    private communicator : ICommunicator;
+    private database : IDatabase;
+
+    constructor(communicator: ICommunicator, database: IDatabase) {
+        this.communicator = communicator;
+        this.database = database;
     }
 
-    private uri: string;
-
-    public analyze(inputs: Input[], old: any): Output {
-        var all = inputs.map(_ => _.name);
-
-        var car = new CarOutput();
-        var places = inputs.filter(_ => Boolean(_.place));
-        var times = inputs.filter(_ => Boolean(_.time));
-
-        car.place = (<any>(places[places.length - 1] || {place: null})).place;
-        car.time = (<any>(times[times.length - 1] || {time: null})).time;
-
-
-        var driverCount = inputs.filter(_ => _.driver).length;
-        if (driverCount == 0) {
-            var result = new Output();
-
-            result.flag = new FlagOutput();
-
-            result.flag.needPlace = car.place != null;
-            result.flag.needTime = car.time != null;
-            result.flag.newCar = false;
-
-            result.bench = all;
-            result.cars = [];
-            return result;
-        }
-
-        car.passangers = all;
-        var result = new Output();
-
-        result.flag = new FlagOutput();
-
-        result.flag.needPlace = car.place != null;
-        result.flag.needTime = car.time != null;
-        result.flag.newCar = !old.length;
-
-        result.bench = [];
-        result.cars = [car];
-        return result;
+    public getLastProperty<T>(messages: IMessage[], getter: Func<IMessage, T>): T {
+        var last = _(messages)
+            .filter(message => getter(message) !== undefined && getter(message) !== null)
+            .last();
+        return last !== undefined ? getter(last) : null;
     }
 
-    public async analyzeAndSend(input: Input[], old: any): Promise<Output>{
-        var result = this.analyze(input, old);
+    public analyze(messages: IMessage[]): IMatchResult {
 
-        /*
-        if (result.flag.needTime) {
-            await Web.requestAsync({
-                method: 'POST',
-                uri: this.uri,
-                body: {
-                    type: 'needTime'
-                },
-                json: true
+        var users = _(messages)
+            .groupBy(item => item.name)
+            .map(item => <IMessage>{
+                name: _(<IMessage[]>item).first().name,
+                driver: this.getLastProperty(<IMessage[]>item, message => message.driver),
+                place: this.getLastProperty(<IMessage[]>item, message => message.place),
+                time: this.getLastProperty(<IMessage[]>item, message => message.time)
             });
-        }
-        if (result.flag.needPlace) {
-            await Web.requestAsync({
-                method: 'POST',
-                uri: this.uri,
-                body: {
-                    type: 'needPlace'
-                },
-                json: true
-            });
-        }
-        */
-        if (result.flag.newCar) {
-            await Web.requestAsync({
-                method: 'POST',
-                uri: this.uri,
-                body: {
-                    type: 'newCar',
-                    passangers: result.cars[0].passangers
-                },
-                json: true
-            });
-        }
 
-        return new Promise<Output>((resolve, reject) => {
-            resolve(result);
+        var cars = users
+            .filter(message => message.driver)
+            .map(user => <ICar>{
+                driver: user.name,
+                place: user.place,
+                time: user.time,
+                passangers: [user.name]
+            })
+            .value();
+
+        var passangers = users.filter(message => !message.driver);
+        var benches: IBench[] = [];
+
+        passangers.forEach(user => {
+            var car = _(cars)
+                .filter(car => car.passangers.length < 3)
+                .filter(car => car.place == null || user.place == null || car.place == user.place)
+                .filter(car => car.time == null || user.time == null || car.time == user.time)
+                .first();
+
+            if (car == null) {
+                benches.push(<IBench>{ name: user.name });
+                return;
+            }
+
+            car.passangers.push(user.name);
+            car.place = car.place != null ? car.place : user.place;
+            car.time = car.time != null ? car.time : user.time;
         });
+
+        return {
+            cars: cars,
+            benches: benches
+        };
+    }
+
+    public generateOutput(current: IMatchResult, prev: IMatchResult): any[] {
+        return _(current.cars)
+            .filter(car => !prev.cars
+                .map(c => c.driver)
+                .some(driver => driver == car.driver))
+            .map(car => <any>{ type: "NewCar", car: car })
+            .value();
+    }
+    public fix(matchResult: IMatchResult): IMatchResult {
+        return <IMatchResult>{
+            benches: matchResult.benches,
+            cars: _(matchResult.cars)
+                .map(car => <ICar> {
+                    driver: car.driver,
+                    place: car.place == null ? "неизвестно" : car.place,
+                    time: car.time == null ? "неизвестно" : car.time,
+                    passangers: car.passangers
+                })
+            .value()
+        };
+    }
+
+    public async processAsync(): Promise<void> {
+
+        var prev = await this.database.getMatchResultAsync();
+        var messages = await this.database.getMessagesAsync();
+
+        var matchResult = this.fix(this.analyze(messages));
+        await this.database.saveMatchResultAsync(matchResult);
+
+        var output = this.generateOutput(matchResult, prev);
+        if (output.length > 0) {
+            console.log(`output messages: ${JSON.stringify(output)}`);
+            await this.communicator.sendNoticeAsync(output[0]);
+        }
+        
+        console.log(`match result: ${JSON.stringify(matchResult)}`);
+        await this.communicator.sendNoticeAsync(<any>{
+            type: "Status",
+            matchResult: matchResult
+        });
+
+        return new Promise<void>(resolve => resolve());
     }
 }

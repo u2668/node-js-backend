@@ -9,48 +9,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const Message_1 = require("../Domain/Message");
-const Car_1 = require("../Domain/Car");
-const Bench_1 = require("../Domain/Bench");
-class Database {
+const MessageEntity_1 = require("../Entity/MessageEntity");
+class MongoDatabase {
     constructor(db) {
         this.db = db;
     }
     addMessageAsync(message) {
         return __awaiter(this, void 0, Promise, function* () {
-            var record = new Message_1.Message(message);
+            var record = new MessageEntity_1.MessageEntity(message);
             return new Promise((resolve, reject) => {
                 record.save((err) => {
                     if (err) {
                         reject(err);
+                        return;
                     }
                     console.log(`saved: ${JSON.stringify(message)}`);
-                    resolve(message);
+                    resolve();
                 });
-            });
-        });
-    }
-    addCarAsync(car) {
-        var record = new Car_1.Car(car);
-        return new Promise((resolve, reject) => {
-            record.save((err) => {
-                if (err) {
-                    reject(err);
-                }
-                console.log(`saved: ${JSON.stringify(car)}`);
-                resolve(car);
-            });
-        });
-    }
-    addBenchAsync(bench) {
-        var record = new Bench_1.Bench(bench);
-        return new Promise((resolve, reject) => {
-            record.save((err) => {
-                if (err) {
-                    reject(err);
-                }
-                console.log(`saved: ${JSON.stringify(bench)}`);
-                resolve(bench);
             });
         });
     }
@@ -59,6 +34,7 @@ class Database {
             this.db.collections[collection].find().toArray((err, result) => {
                 if (err) {
                     reject(err);
+                    return;
                 }
                 console.log(`find: ${JSON.stringify(result)}`);
                 resolve(result);
@@ -69,6 +45,7 @@ class Database {
         return new Promise((resolve, reject) => {
             if (!this.db.collections[collection]) {
                 resolve();
+                return;
             }
             this.db.collections[collection].drop((err, result) => {
                 console.log(`droped: ${JSON.stringify(result)}`);
@@ -76,31 +53,18 @@ class Database {
             });
         });
     }
+    getMatchResultAsync() {
+        throw new Error("Not implemented");
+    }
+    saveMatchResultAsync(matchResult) {
+        throw new Error("Not implemented");
+    }
+    getMessagesAsync() {
+        throw new Error("Not implemented");
+    }
+    clearAsync() {
+        throw new Error("Not implemented");
+    }
 }
-exports.Database = Database;
-class FakeDatabase {
-    addMessageAsync(message) {
-        return __awaiter(this, void 0, Promise, function* () {
-            return new Promise((resolve, reject) => {
-                console.log(`result: ${JSON.stringify(message)}`);
-                resolve(message);
-            });
-        });
-    }
-    addCarAsync(car) {
-        return new Promise((resolve, reject) => {
-            console.log(`result: ${JSON.stringify(car)}`);
-            resolve(car);
-        });
-    }
-    addBenchAsync(bench) {
-        return new Promise((resolve, reject) => {
-            console.log(`result: ${JSON.stringify(bench)}`);
-            resolve(bench);
-        });
-    }
-    getAllAsync(collection) { throw new Error("Not implemented"); }
-    dropAsync(collection) { throw new Error("Not implemented"); }
-}
-exports.FakeDatabase = FakeDatabase;
-//# sourceMappingURL=Database.js.map
+exports.MongoDatabase = MongoDatabase;
+//# sourceMappingURL=MongoDatabase.js.map
