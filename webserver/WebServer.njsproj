@@ -48,8 +48,6 @@
     <TypeScriptCompile Include="Database\MongoUtility.ts" />
     <TypeScriptCompile Include="Database\MongoDatabase.ts" />
     <TypeScriptCompile Include="Database\ObjectDatabase.ts" />
-    <TypeScriptCompile Include="Data\Input.ts" />
-    <TypeScriptCompile Include="Data\Output.ts" />
     <TypeScriptCompile Include="Domain\MatchResult.ts" />
     <TypeScriptCompile Include="Entity\BenchEntity.ts" />
     <TypeScriptCompile Include="Entity\CarEntity.ts" />

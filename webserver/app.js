@@ -9,6 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const WebServer_1 = require("./Scripts/WebServer");
 const Thinker_1 = require("./Scripts/Thinker");
+const MongoDatabase_1 = require("./Database/MongoDatabase");
+const MongoUtility_1 = require("./Database/MongoUtility");
 const ObjectDatabase_1 = require("./Database/ObjectDatabase");
 const WebCommunicator_1 = require("./Communicate/WebCommunicator");
 const FakeCommunicator_1 = require("./Communicate/FakeCommunicator");
@@ -19,7 +21,8 @@ var devinit = () => __awaiter(this, void 0, void 0, function* () {
     new WebServer_1.WebServer("127.0.0.1", 8080, thinker, database).start();
 });
 var init = () => __awaiter(this, void 0, void 0, function* () {
-    var database = new ObjectDatabase_1.ObjectDatabase();
+    var db = yield MongoUtility_1.MongoUtility.initialize(`${process.env.CHAT_BOT_ENDPOINT.MONGO}/test`);
+    var database = new MongoDatabase_1.MongoDatabase(db);
     var communicator = new WebCommunicator_1.WebCommunicator(process.env.CHAT_BOT_ENDPOINT);
     var thinker = new Thinker_1.Thinker(communicator, database);
     new WebServer_1.WebServer("127.0.0.1", 8080, thinker, database).start();

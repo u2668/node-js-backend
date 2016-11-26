@@ -82,8 +82,8 @@ class Thinker {
     }
     processAsync() {
         return __awaiter(this, void 0, Promise, function* () {
-            var prev = yield this.database.getMatchResultAsync();
             var messages = yield this.database.getMessagesAsync();
+            var prev = yield this.database.getMatchResultAsync();
             var matchResult = this.fix(this.analyze(messages));
             yield this.database.saveMatchResultAsync(matchResult);
             var output = this.generateOutput(matchResult, prev);

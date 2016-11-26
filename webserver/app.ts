@@ -19,7 +19,8 @@ var devinit = async () => {
 }
 
 var init = async () => {
-    var database: IDatabase = new ObjectDatabase();
+    var db = await MongoUtility.initialize(`${process.env.CHAT_BOT_ENDPOINT.MONGO}/test`);
+    var database: IDatabase = new MongoDatabase(db);
     var communicator: ICommunicator = new WebCommunicator(process.env.CHAT_BOT_ENDPOINT);
     var thinker = new Thinker(communicator, database);
     new WebServer("127.0.0.1", 8080, thinker, database).start();

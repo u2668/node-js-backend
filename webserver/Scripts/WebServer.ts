@@ -10,10 +10,11 @@ import * as Http from "http";
 import * as _ from "lodash"
 
 import {Thinker} from "./Thinker"
-import {Input} from "../Data/Input"
 import {Web} from "../Utility/Web"
 import {IDatabase} from "../Database/IDatabase";
 import {ICommunicator} from "../Communicate/ICommunicator"
+
+import {IMessage} from "../Domain/Message";
 
 export class WebServer {
     private port: number;
@@ -68,7 +69,7 @@ export class WebServer {
                 '/send',
                 async (request, response) => {
                     try {
-                        var body = await Web.assembleBodyAsync<Input>(request);
+                        var body = await Web.assembleBodyAsync<IMessage>(request);
                         console.log(`send body: ${JSON.stringify(body)}`);
 
                         await this.database.addMessageAsync({

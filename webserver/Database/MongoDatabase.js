@@ -10,60 +10,53 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const MessageEntity_1 = require("../Entity/MessageEntity");
+const CarEntity_1 = require("../Entity/CarEntity");
+const BenchEntity_1 = require("../Entity/BenchEntity");
+const MongoUtility_1 = require("../Database/MongoUtility");
 class MongoDatabase {
     constructor(db) {
         this.db = db;
     }
-    addMessageAsync(message) {
-        return __awaiter(this, void 0, Promise, function* () {
-            var record = new MessageEntity_1.MessageEntity(message);
-            return new Promise((resolve, reject) => {
-                record.save((err) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    console.log(`saved: ${JSON.stringify(message)}`);
-                    resolve();
-                });
-            });
-        });
-    }
-    getAllAsync(collection) {
-        return new Promise((resolve, reject) => {
-            this.db.collections[collection].find().toArray((err, result) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                console.log(`find: ${JSON.stringify(result)}`);
-                resolve(result);
-            });
-        });
-    }
-    dropAsync(collection) {
-        return new Promise((resolve, reject) => {
-            if (!this.db.collections[collection]) {
-                resolve();
-                return;
-            }
-            this.db.collections[collection].drop((err, result) => {
-                console.log(`droped: ${JSON.stringify(result)}`);
-                resolve(result);
-            });
-        });
-    }
     getMatchResultAsync() {
-        throw new Error("Not implemented");
+        return __awaiter(this, void 0, Promise, function* () {
+            var cars = yield MongoUtility_1.MongoUtility.getAllAsync(this.db, "cars");
+            var benches = yield MongoUtility_1.MongoUtility.getAllAsync(this.db, "benches");
+            var result = {
+                benches: benches || [],
+                cars: cars || []
+            };
+            return new Promise(resolve => resolve(result));
+        });
     }
     saveMatchResultAsync(matchResult) {
-        throw new Error("Not implemented");
+        return __awaiter(this, void 0, Promise, function* () {
+            yield MongoUtility_1.MongoUtility.dropAsync(this.db, "cars");
+            yield MongoUtility_1.MongoUtility.dropAsync(this.db, "benches");
+            for (var car of matchResult.cars) {
+                var carEntity = new CarEntity_1.CarEntity(car);
+                yield MongoUtility_1.MongoUtility.addEntityAsync(carEntity);
+            }
+            for (var bench of matchResult.benches) {
+                var benchEntity = new BenchEntity_1.BenchEntity(bench);
+                yield MongoUtility_1.MongoUtility.addEntityAsync(benchEntity);
+            }
+            return new Promise(resolve => resolve());
+        });
     }
     getMessagesAsync() {
-        throw new Error("Not implemented");
+        return MongoUtility_1.MongoUtility.getAllAsync(this.db, "messages");
     }
     clearAsync() {
-        throw new Error("Not implemented");
+        return __awaiter(this, void 0, Promise, function* () {
+            yield MongoUtility_1.MongoUtility.dropAsync(this.db, "cars");
+            yield MongoUtility_1.MongoUtility.dropAsync(this.db, "benches");
+            yield MongoUtility_1.MongoUtility.dropAsync(this.db, "messages");
+            return new Promise(resolve => resolve());
+        });
+    }
+    addMessageAsync(message) {
+        var entity = new MessageEntity_1.MessageEntity(message);
+        return MongoUtility_1.MongoUtility.addEntityAsync(entity);
     }
 }
 exports.MongoDatabase = MongoDatabase;

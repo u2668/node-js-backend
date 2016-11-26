@@ -35,7 +35,7 @@ export class MongoUtility {
         });
     }
 
-    public static addEntityAsync<T extends Mongoose.Document>(entity: Mongoose.Model<T>): Promise<any> {
+    public static addEntityAsync<T extends Mongoose.Document>(entity: T): Promise<any> {
         return new Promise((resolve, reject) => {
             entity.save((err) => {
                 if (err) {
@@ -48,15 +48,15 @@ export class MongoUtility {
         });
     }
 
-    public static getAllAsync(db: Mongoose.Connection, collection: string): Promise<any> {
-        return new Promise((resolve, reject) => {
+    public static getAllAsync<T>(db: Mongoose.Connection, collection: string): Promise<T[]> {
+        return new Promise<T[]>((resolve, reject) => {
             (<any>db.collections[collection]).find().toArray((err, result) => {
                 if (err) {
                     reject(err);
                     return;
                 }
                 console.log(`find: ${JSON.stringify(result)}`);
-                resolve(result);
+                resolve(result as T[]);
             });
         });
     }

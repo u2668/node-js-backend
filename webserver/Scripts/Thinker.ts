@@ -2,9 +2,6 @@
 
 import * as _ from "lodash"
 
-import {Input} from "../Data/Input"
-import {Output, CarOutput, FlagOutput} from "../Data/Output"
-
 import {IDatabase} from "../Database/IDatabase";
 import {ICommunicator} from "../Communicate/ICommunicator"
 
@@ -13,7 +10,7 @@ import {IBench} from "../Domain/Bench";
 import {ICar} from "../Domain/Car";
 import {IMatchResult} from "../Domain/MatchResult";
 
-export interface Func<T, TResult> {
+export interface IFunc<T, TResult> {
     (item: T): TResult;
 }
 export class Thinker {
@@ -26,7 +23,7 @@ export class Thinker {
         this.database = database;
     }
 
-    public getLastProperty<T>(messages: IMessage[], getter: Func<IMessage, T>): T {
+    public getLastProperty<T>(messages: IMessage[], getter: IFunc<IMessage, T>): T {
         var last = _(messages)
             .filter(message => getter(message) !== undefined && getter(message) !== null)
             .last();
@@ -104,8 +101,8 @@ export class Thinker {
 
     public async processAsync(): Promise<void> {
 
-        var prev = await this.database.getMatchResultAsync();
         var messages = await this.database.getMessagesAsync();
+        var prev = await this.database.getMatchResultAsync();
 
         var matchResult = this.fix(this.analyze(messages));
         await this.database.saveMatchResultAsync(matchResult);
